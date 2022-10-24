@@ -10,13 +10,57 @@ const API_getRecipes = async (name = undefined) => {
     if(name !== undefined) {
         console.log('Entra a name !== undefined');
         const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?query=${name}&addRecipeInformation=true&apiKey=${KEY}`);
-        
+        const newResponse = response.data.results.map(data => {
+            let instructionsString = "";
+            if(data.analyzedInstructions.length > 0) {
+                data.analyzedInstructions[0].steps.forEach(instruction => {
+                    instructionsString = instructionsString + `Paso ${instruction.number}, ${instruction.step}\n`;
+                })
+            } else {
+                instructionsString = "No hay instrucciones para esta receta";
+            }
+            
+            const objRecipe = {
+                id: data.id,
+                title: data.title,
+                dishType: [...data.dishTypes],
+                diets: [...data.diets],
+                image: data.image,
+                summary: data.summary,
+                healthScore: data.healthScore,
+                steps: instructionsString
+            }
+            return objRecipe;
+        });
+        return newResponse;
 
     } else {
         console.log('Entra a name === undefined');
         const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?addRecipeInformation=true&apiKey=${KEY}`);
-        //console.log(response.data.results);
-        return response.data.results;
+        //console.log(response.data.results[0].analyzedInstructions);
+        const newResponse = response.data.results.map(data => {
+            let instructionsString = "";
+            if(data.analyzedInstructions.length > 0) {
+                data.analyzedInstructions[0].steps.forEach(instruction => {
+                    instructionsString = instructionsString + `Paso ${instruction.number}, ${instruction.step}\n`;
+                })
+            } else {
+                instructionsString = "No hay instrucciones para esta receta";
+            }
+            
+            const objRecipe = {
+                id: data.id,
+                title: data.title,
+                dishType: [...data.dishTypes],
+                diets: [...data.diets],
+                image: data.image,
+                summary: data.summary,
+                healthScore: data.healthScore,
+                steps: instructionsString
+            }
+            return objRecipe;
+        });
+        return newResponse;
     }
 };
 
@@ -28,8 +72,30 @@ const getAllRecipes = async (name = undefined) => {
     return API_recipes;
 }
 
+const API_getRecipe = async (idReceta) => {
+    const recipeDetails = await axios.get(`https://api.spoonacular.com/recipes/${idReceta}/information?apiKey=${KEY}`);
+    console.log('Detalle de la receta de la API: ' + recipeDetails.data);
+    return recipeDetails.data;
+}
+
+const DB_getRecipe = async (idReceta) => {
+    //Buscar la receta en la base por ID y devolver el resultado
+}
+
+const getRecipe = async (idReceta) => {
+    console.log('Entra a getRecipe');
+    if(idReceta.includes('-') === false) {
+        const API_recipe = await API_getRecipe(idReceta);
+        if(API_recipe !== undefined) return API_recipe;
+    } else {
+        const DB_recipe = await DB_getRecipe(idReceta);
+        if(DB_recipe !== undefined) console.log('DB_recipe: ' + DB_recipe); return DB_recipe;
+    }
+}
+
+
 router.get('/', async (req, res) => {
-    console.log('Hola mundo desde get de Recipes');
+    console.log('Hola mundo desde get de /recipes');
     try {
         if (req.query.name !== undefined) {
             const { name } = req.query;
@@ -37,8 +103,21 @@ router.get('/', async (req, res) => {
             return res.status(200).json(newResponse);
         } else {
             let newResponse = await getAllRecipes();
+            console.log(`newResponse de la API sin name en la query: ${newResponse}`);
             return res.status(200).json(newResponse);
         }
+    } catch (error) {
+        return res.send('Error: ' + error);
+    }
+})
+
+router.get('/:idReceta', async (req, res) => {
+    console.log('Hola mundo desde get de /recipes/idReceta');
+    const { idReceta } = req.params;
+    try {
+        let newResponse = await getRecipe(idReceta);
+        
+        return res.status(200).json(newResponse);
     } catch (error) {
         return res.send('Error: ' + error);
     }
