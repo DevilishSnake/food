@@ -80,12 +80,45 @@ const API_getRecipes = async (name = undefined) => {
     }
 };
 
+
+const DB_getAllRecipes = async (name = undefined) => {
+    if (name !== undefined) {
+        return await Recipe.findAll({
+            where: {
+                title: {
+                    [Op.substring]: name
+                }
+            },
+            include: {
+                model: Diet,
+                attributes: ['name'],
+                through: {
+                    attributes: [],
+                },
+            }
+        });
+    } else {
+        return await Recipe.findAll({
+            include: {
+                model: Diet,
+                attributes: ['name'],
+                through: {
+                    attributes: [],
+                },
+            }
+        });
+    }
+}
+
 const getAllRecipes = async (name = undefined) => {
     console.log('Entra a getAllRecipes')
     const API_recipes = await API_getRecipes(name);
     //Hacer el get a la DB acá, después concatenarlo con los de la API
-    console.log('API_recipes es igual a: ' + API_recipes);
-    return API_recipes;
+    const DB_recipes = await DB_getAllRecipes(name);
+    const allRecipes = DB_recipes.concat(API_recipes);
+    // console.log('API_recipes es igual a: ' + API_recipes);
+    // return API_recipes;
+    return allRecipes;
 }
 
 const API_getRecipe = async (idReceta) => {
@@ -122,6 +155,18 @@ const API_getRecipe = async (idReceta) => {
 
 const DB_getRecipe = async (idReceta) => {
     //Buscar la receta en la base por ID y devolver el resultado
+    console.log('get a la DB, el ID a buscar es: ' + idReceta);
+    if (idReceta !== undefined) {
+        return await Recipe.findByPk(idReceta, {
+            include: {
+                model: Diet,
+                attributes: ['name'],
+                through: {
+                    attributes: [],
+                },
+            }
+        })
+    }
 }
 
 const getRecipe = async (idReceta) => {
