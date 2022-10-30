@@ -215,21 +215,42 @@ router.post('/', async (req, res) => {
     const {title, resume, healthScore, steps, diets} = req.body;
 
     try {
+        console.log('Intenta hacer Recipe.create');
         const newRecipe = await Recipe.create({
             title: title,
             resume: resume,
             healthScore, healthScore,
             steps: steps
         });
-        const dietsFromDB = diets.map(async (diet) => {
-            return await Diet.findByPk(diet.id);
+        console.log('Termina de hacer Recipe.create');
+        let formattedDiets =  Array.isArray(diets) ? diets : [diets];
+        const dietsFromDB = await Diet.findAll({
+            where: {
+                name: {
+                    [Op.in]: formattedDiets
+                }
+            }
         });
-        dietsFromDB.forEach(async (diet) => {
-            await newRecipe.addDiet(diet, {through: 'recipe_diet'});
-        });
+        await newRecipe.setDiets(dietsFromDB);
+        
+        // console.log('Intenta hacer diets.map');
+        // const dietsFromDB = diets.map(async (diet) => {
+        //     console.log('Está dentro de diets.map');
+        //     return await Diet.findByPk(diet.id);
+
+        // });
+        // console.log('Termina de hacer diets.map');
+        // console.log('Intenta hacer dietsFromDB.forEach');
+        // dietsFromDB.forEach(async (diet) => {
+        //     console.log('Dentro del forEach, intenta hacer newRecipe.addDiet');
+        //     await newRecipe.addDiet(diet, {through: 'recipe_diet'});
+        //     console.log('Dentro del forEach, termina de hacer newRecipe.addDiet');
+        // });
+        // console.log('Devuelve el resultado');
         return res.status(200).send(`Recipe ${newRecipe.title} created`);
 
     } catch (error) {
+        console.log('Entra al catch');
         return res.status(500).send(`Error: ${error}`);
     }
 })
