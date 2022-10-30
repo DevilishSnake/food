@@ -12,6 +12,11 @@ const API_getRecipes = async (name = undefined) => {
         const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?query=${name}&addRecipeInformation=true&apiKey=${KEY}`);
         const newResponse = response.data.results.map(data => {
             let instructionsString = "";
+            let diets = [];
+            data.vegetarian && diets.push('vegetarian');
+            data.vegan && diets.push('vegan');
+            data.glutenFree && diets.push('gluten free');
+            data.dairyFree && diets.push('dairy free');
             if(data.analyzedInstructions.length > 0) {
                 data.analyzedInstructions[0].steps.forEach(instruction => {
                     instructionsString = instructionsString + `Paso ${instruction.number}, ${instruction.step}\n`;
@@ -24,12 +29,15 @@ const API_getRecipes = async (name = undefined) => {
                 id: data.id,
                 title: data.title,
                 dishType: [...data.dishTypes],
-                diets: [...data.diets],
+                diets: [...diets, ...data.diets],
                 image: data.image,
                 summary: data.summary,
                 healthScore: data.healthScore,
                 steps: instructionsString
             }
+            objRecipe.diets = objRecipe.diets.filter((item, index) => {
+                return objRecipe.diets.indexOf(item) === index;
+            });
             return objRecipe;
         });
         return newResponse;
@@ -40,6 +48,11 @@ const API_getRecipes = async (name = undefined) => {
         //console.log(response.data.results[0].analyzedInstructions);
         const newResponse = response.data.results.map(data => {
             let instructionsString = "";
+            let diets = [];
+            data.vegetarian && diets.push('vegetarian');
+            data.vegan && diets.push('vegan');
+            data.glutenFree && diets.push('gluten free');
+            data.dairyFree && diets.push('dairy free');
             if(data.analyzedInstructions.length > 0) {
                 data.analyzedInstructions[0].steps.forEach(instruction => {
                     instructionsString = instructionsString + `Paso ${instruction.number}, ${instruction.step}\n`;
@@ -52,12 +65,15 @@ const API_getRecipes = async (name = undefined) => {
                 id: data.id,
                 title: data.title,
                 dishType: [...data.dishTypes],
-                diets: [...data.diets],
+                diets: [...diets, ...data.diets],
                 image: data.image,
                 summary: data.summary,
                 healthScore: data.healthScore,
                 steps: instructionsString
             }
+            objRecipe.diets = objRecipe.diets.filter((item, index) => {
+                return objRecipe.diets.indexOf(item) === index;
+            });
             return objRecipe;
         });
         return newResponse;
@@ -75,7 +91,33 @@ const getAllRecipes = async (name = undefined) => {
 const API_getRecipe = async (idReceta) => {
     const recipeDetails = await axios.get(`https://api.spoonacular.com/recipes/${idReceta}/information?apiKey=${KEY}`);
     console.log('Detalle de la receta de la API: ' + recipeDetails.data);
-    return recipeDetails.data;
+    let instructionsString = "";
+    if(recipeDetails.data.analyzedInstructions.length > 0) {
+        recipeDetails.data.analyzedInstructions[0].steps.forEach(instruction => {
+            instructionsString = instructionsString + `Paso ${instruction.number}, ${instruction.step}\n`;
+        })
+    } else {
+        instructionsString = "No hay instrucciones para esta receta";
+    }
+    let diets = [];
+    recipeDetails.data.vegetarian && diets.push('vegetarian');
+    recipeDetails.data.vegan && diets.push('vegan');
+    recipeDetails.data.glutenFree && diets.push('gluten free');
+    recipeDetails.data.dairyFree && diets.push('dairy free');
+    const objRecipe = {
+        id: recipeDetails.data.id,
+        title: recipeDetails.data.title,
+        dishType: [...recipeDetails.data.dishTypes],
+        diets: [...diets, ...recipeDetails.data.diets],
+        image: recipeDetails.data.image,
+        summary: recipeDetails.data.summary,
+        healthScore: recipeDetails.data.healthScore,
+        steps: instructionsString
+    };
+    objRecipe.diets = objRecipe.diets.filter((item, index) => {
+        return objRecipe.diets.indexOf(item) === index;
+    });
+    return objRecipe;
 }
 
 const DB_getRecipe = async (idReceta) => {
@@ -122,5 +164,30 @@ router.get('/:idReceta', async (req, res) => {
         return res.send('Error: ' + error);
     }
 })
+
+router.post('/', async (req, res) => {
+    console.log('Entra al POST de /diets');
+    const {title, resume, healthScore, steps, diets} = req.body;
+
+    try {
+        const newRecipe = await Recipe.create({
+            title: title,
+            resume: resume,
+            healthScore, healthScore,
+            steps: steps
+        });
+        const dietsFromDB = diets.map(async (diet) => {
+            return await Diet.findByPk(diet.id);
+        });
+        dietsFromDB.forEach(async (diet) => {
+            await newRecipe.addDiet(diet, {through: 'recipe_diet'});
+        });
+        return res.status(200).send(`Recipe ${newRecipe.title} created`);
+
+    } catch (error) {
+        return res.status(500).send(`Error: ${error}`);
+    }
+})
+
 
 module.exports = router;
