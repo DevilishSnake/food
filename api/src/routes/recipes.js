@@ -115,7 +115,31 @@ const getAllRecipes = async (name = undefined) => {
     const API_recipes = await API_getRecipes(name);
     //Hacer el get a la DB acá, después concatenarlo con los de la API
     const DB_recipes = await DB_getAllRecipes(name);
-    const allRecipes = DB_recipes.concat(API_recipes);
+    let normalized_DB_recipes;
+    let allRecipes;
+    if(DB_recipes.length > 0) {
+        normalized_DB_recipes = DB_recipes.map(recipe => {
+            return {
+                id: recipe.id,
+                title: recipe.title,
+                resume: recipe.resume,
+                healthScore: recipe.healthScore,
+                steps: recipe.steps,
+                createdInDb: recipe.createdInDb,
+                diets: recipe.diets.map(diet => {
+                    return diet.name;
+                })
+            }
+        });
+        allRecipes = normalized_DB_recipes.concat(API_recipes);
+    } else {
+        DB_recipes.diets = DB_recipes.diets.map(diet => {
+            return diet.name;
+        });
+        allRecipes = DB_recipes.concat(API_recipes);
+    }
+    //const allRecipes = DB_recipes.concat(API_recipes);
+    
     // console.log('API_recipes es igual a: ' + API_recipes);
     // return API_recipes;
     return allRecipes;
@@ -157,7 +181,7 @@ const DB_getRecipe = async (idReceta) => {
     //Buscar la receta en la base por ID y devolver el resultado
     console.log('get a la DB, el ID a buscar es: ' + idReceta);
     if (idReceta !== undefined) {
-        return await Recipe.findByPk(idReceta, {
+        const recipe = await Recipe.findByPk(idReceta, {
             include: {
                 model: Diet,
                 attributes: ['name'],
@@ -166,6 +190,10 @@ const DB_getRecipe = async (idReceta) => {
                 },
             }
         })
+        recipe.diets = recipe.diets.map(diet => {
+            return diet.name;
+        });
+        return recipe;
     }
 }
 
@@ -176,7 +204,14 @@ const getRecipe = async (idReceta) => {
         if(API_recipe !== undefined) return API_recipe;
     } else {
         const DB_recipe = await DB_getRecipe(idReceta);
-        if(DB_recipe !== undefined) console.log('DB_recipe: ' + DB_recipe); return DB_recipe;
+        
+        if(DB_recipe.title !== undefined) {
+            console.log('DB_recipe: ' + DB_recipe);
+            // DB_recipe.diets = DB_recipe.diets.map(diet => {
+            //     return diet.name;
+            // });
+            return DB_recipe; 
+        }
     }
 }
 
@@ -232,7 +267,7 @@ router.post('/', async (req, res) => {
             }
         });
         await newRecipe.setDiets(dietsFromDB);
-        
+
         // console.log('Intenta hacer diets.map');
         // const dietsFromDB = diets.map(async (diet) => {
         //     console.log('Está dentro de diets.map');
