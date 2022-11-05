@@ -1,7 +1,6 @@
 import React from 'react';
 
 export default function Card ({image, title, diets}) {
-
     return (
         <div>
             <h3>{title}</h3>

@@ -4,15 +4,46 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getDiets, getRecipes } from '../redux/actions';
 import { Link } from 'react-router-dom';
 import  Card  from './Card';
+import Loading from "./Loading";
+import Pagination from "./Pagination";
+
+import axios from 'axios';
 
 export default function Home () {
     const dispatch = useDispatch();
-    const allRecipes = useSelector((state) => state.recipes);
+    const allRecipes = useSelector((state) => state.allRecipes); //Ver si no lo cambio por .recipes en vez de .allRecipes
     const allDiets = useSelector(state => state.diets);
 
+    //const [recipes, setRecipes] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [recipesPerPage, setRecipesPerPage] = useState(9);
+
+    const indexOfLastRecipe = currentPage * recipesPerPage;
+    const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
+    const currentRecipes = allRecipes.slice(indexOfFirstRecipe, indexOfLastRecipe);
+
+    const [pageNumberLimit, setPageNumberLimit] = useState(5);
+    const [maxPageNumberLimit, setMaxPageNumberLimit] = useState(5);
+    const [minPageNumberLimit, setMinPageNumberLimit] = useState(0);
+
+    const paginado = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    }
+
+
+//    useEffect(() => {
+//        const fetchRecipes = async () => {
+//            setLoading(true);
+//            const res = await axios.get('');
+//        }
+//    })
+
     useEffect(() => {
+        setLoading(true);
         dispatch(getRecipes());
         dispatch(getDiets());
+        setLoading(false);
     }, [dispatch]);
 
     function handleClick(e) {
@@ -22,7 +53,7 @@ export default function Home () {
 
     function handleSortByName(e) {
         e.preventDefault();
-        
+
     }
 
     function handleSortByHealthScore(e) {
@@ -31,7 +62,7 @@ export default function Home () {
 
     function handleFilterDiet(e) {
         e.preventDefault();
-        
+
     }
 
     function handleFilterDatabase(e) {
@@ -69,10 +100,22 @@ export default function Home () {
                 <option value="api">API</option>
             </select>
 
+            <Pagination
+                recipesPerPage={recipesPerPage}
+                allRecipes={allRecipes.length}
+                paginado={paginado}
+                currentPage={currentPage}
+                maxPageNumberLimit={maxPageNumberLimit}
+                setMaxPageNumberLimit={setMaxPageNumberLimit}
+                minPageNumberLimit={minPageNumberLimit}
+                setMinPageNumberLimit={setMinPageNumberLimit}
+                pageNumberLimit={pageNumberLimit}
+            />
 
             <div className='cartas' >
                 {
-                    allRecipes && allRecipes.map(recipe => {
+                    loading? <Loading /> :
+                    currentRecipes && currentRecipes.map(recipe => {
                         return (
 
                             <Link to={"/home/" + recipe.id} key={recipe.id}>
