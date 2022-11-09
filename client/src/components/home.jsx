@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getDiets, getRecipes } from '../redux/actions';
+import { filterRecipesByAPIOrDB, filterRecipesByDietType, getDiets, getRecipes } from '../redux/actions';
 import { Link } from 'react-router-dom';
 import  Card  from './Card';
 import Loading from "./Loading";
@@ -11,13 +11,13 @@ import axios from 'axios';
 
 export default function Home () {
     const dispatch = useDispatch();
-    const allRecipes = useSelector((state) => state.allRecipes); //Ver si no lo cambio por .recipes en vez de .allRecipes
+    const allRecipes = useSelector((state) => state.recipes); //Ver si no lo cambio por .recipes en vez de .allRecipes
     const allDiets = useSelector(state => state.diets);
 
     //const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const [recipesPerPage, setRecipesPerPage] = useState(9);
+    const [recipesPerPage, setRecipesPerPage] = useState(2);
 
     const indexOfLastRecipe = currentPage * recipesPerPage;
     const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
@@ -62,11 +62,13 @@ export default function Home () {
 
     function handleFilterDiet(e) {
         e.preventDefault();
+        dispatch(filterRecipesByDietType(e.target.value));
 
     }
 
     function handleFilterDatabase(e) {
         e.preventDefault();
+        dispatch(filterRecipesByAPIOrDB(e.target.value));
     }
     return (
         <div>
@@ -86,6 +88,7 @@ export default function Home () {
                 <option value="des">Descendente</option>
             </select>
             <select onChange={e => handleFilterDiet(e)} name="" id="">
+                <option value='All'>Todas</option>
                 {
                 allDiets && allDiets.map(diet => {
                     return (
