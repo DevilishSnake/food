@@ -10,37 +10,41 @@ const API_getRecipes = async (name = undefined) => {
     if(name !== undefined) {
         console.log('Entra a name !== undefined');
         const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?query=${name}&addRecipeInformation=true&apiKey=${KEY}`);
-        const newResponse = response.data.results.map(data => {
-            let instructionsString = "";
-            let diets = [];
-            data.vegetarian && diets.push('vegetarian');
-            data.vegan && diets.push('vegan');
-            data.glutenFree && diets.push('gluten free');
-            data.dairyFree && diets.push('dairy free');
-            if(data.analyzedInstructions.length > 0) {
-                data.analyzedInstructions[0].steps.forEach(instruction => {
-                    instructionsString = instructionsString + `Paso ${instruction.number}, ${instruction.step}\n`;
-                })
-            } else {
-                instructionsString = "No hay instrucciones para esta receta";
-            }
-            
-            const objRecipe = {
-                id: data.id,
-                title: data.title,
-                dishType: [...data.dishTypes],
-                diets: [...diets, ...data.diets],
-                image: data.image,
-                summary: data.summary,
-                healthScore: data.healthScore,
-                steps: instructionsString
-            }
-            objRecipe.diets = objRecipe.diets.filter((item, index) => {
-                return objRecipe.diets.indexOf(item) === index;
+        if (response.data.results) {
+            console.log('console.data.results: ' + response.data.results);
+            const newResponse = response.data.results.map(data => {
+                let instructionsString = "";
+                let diets = [];
+                data.vegetarian && diets.push('vegetarian');
+                data.vegan && diets.push('vegan');
+                data.glutenFree && diets.push('gluten free');
+                data.dairyFree && diets.push('dairy free');
+                if(data.analyzedInstructions.length > 0) {
+                    data.analyzedInstructions[0].steps.forEach(instruction => {
+                        instructionsString = instructionsString + `Paso ${instruction.number}, ${instruction.step}\n`;
+                    })
+                } else {
+                    instructionsString = "No hay instrucciones para esta receta";
+                }
+                
+                const objRecipe = {
+                    id: data.id,
+                    title: data.title,
+                    dishType: [...data.dishTypes],
+                    diets: [...diets, ...data.diets],
+                    image: data.image,
+                    summary: data.summary,
+                    healthScore: data.healthScore,
+                    steps: instructionsString
+                }
+                objRecipe.diets = objRecipe.diets.filter((item, index) => {
+                    return objRecipe.diets.indexOf(item) === index;
+                });
+                return objRecipe;
             });
-            return objRecipe;
-        });
-        return newResponse;
+            return newResponse;
+
+        }
 
     } else {
         console.log('Entra a name === undefined');
@@ -133,9 +137,10 @@ const getAllRecipes = async (name = undefined) => {
         });
         allRecipes = normalized_DB_recipes.concat(API_recipes);
     } else {
-        DB_recipes.diets = DB_recipes.diets.map(diet => {
-            return diet.name;
-        });
+        console.log('Look where I am');
+        // DB_recipes.diets = DB_recipes.diets.map(diet => {
+        //     return diet.name;
+        // });
         allRecipes = DB_recipes.concat(API_recipes);
     }
     //const allRecipes = DB_recipes.concat(API_recipes);

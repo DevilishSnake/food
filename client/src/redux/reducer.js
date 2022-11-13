@@ -1,4 +1,4 @@
-import { GET_RECIPES, GET_RECIPE_DETAILS, GET_RECIPE_BY_RECIPE_NAME, POST_RECIPE, GET_DIETS, FILTER_RECIPES_BY_DIET_TYPE, FILTER_RECIPES_BY_API_OR_CREATED } from "./actions";
+import { GET_RECIPES, GET_RECIPE_DETAILS, GET_RECIPE_BY_RECIPE_NAME, POST_RECIPE, GET_DIETS, FILTER_RECIPES_BY_DIET_TYPE, FILTER_RECIPES_BY_API_OR_CREATED, ORDER_RECIPES_BY_RECIPE_NAME, ORDER_RECIPES_BY_HEALTH_SCORE } from "./actions";
 
 const initialState = {
     recipes: [],
@@ -12,18 +12,25 @@ const initialState = {
 export default function reducer (state = initialState, action) {
     switch (action.type) {
         case GET_RECIPES: 
-            if (state.recipes.length === 0) {
-                return {
-                    ...state,
-                    recipes: action.payload,
-                    allRecipes: action.payload
-                }
-            } else {
-                return {
-                    ...state
-                }
-            }
+            // if (state.recipes.length === 0) {
+            //     return {
+            //         ...state,
+            //         recipes: action.payload,
+            //         allRecipes: action.payload
+            //     }
+            // } else {
+            //     return {
+            //         ...state
+            //     }
+            // }
+            return {
+                        ...state,
+                        recipes: action.payload,
+                        allRecipes: action.payload
+                    }
         case GET_RECIPE_BY_RECIPE_NAME:
+            console.log(`entra a case GET_RECIPE_BY_RECIPE_NAME y el action.payload es:`);
+            console.dir(action.payload);
             return {
                 ...state,
                 recipes: action.payload,
@@ -189,6 +196,58 @@ export default function reducer (state = initialState, action) {
                     }
                 }
             }
+        case ORDER_RECIPES_BY_RECIPE_NAME:
+            {
+            let sortedRecipes = action.payload === 'asc' ? 
+                state.recipes.sort(function (a, b) {
+                    if(a.title > b.title) {
+                        return 1;
+                    }
+                    if(a.title < b.title) {
+                        return -1;
+                    }
+                    return 0;
+                }) :
+                state.recipes.sort(function (a, b) {
+                    if(a.title > b.title) {
+                        return -1;
+                    }
+                    if (a.title < b.title) {
+                        return 1;
+                    }
+                    return 0;
+                });
+                return {
+                    ...state,
+                    recipes: sortedRecipes
+                }
+            }
+        case ORDER_RECIPES_BY_HEALTH_SCORE:
+            {
+            let sortedRecipes = action.payload === 'asc' ? 
+                state.recipes.sort(function (a, b) {
+                    if(a.healthScore > b.healthScore) {
+                        return 1;
+                    }
+                    if(a.healthScore < b.healthScore) {
+                        return -1;
+                    }
+                    return 0;
+                }) : 
+                state.recipes.sort(function (a, b) {
+                    if(a.healthScore > b.healthScore) {
+                        return -1;
+                    }
+                    if(a.healthScore < b.healthScore) {
+                        return 1;
+                    }
+                    return 0;
+                })
+            return {
+                ...state,
+                recipes: sortedRecipes
+            }
+        }
         default:
             return state;
     }
