@@ -60,6 +60,21 @@ export function getDiets() {
     }
 }
 
+export function postRecipe(recipeToPost) {
+    return function(dispatch) {
+        return fetch('http://localhost:3001/recipes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+                
+            },
+            body: JSON.stringify(recipeToPost)
+        })
+        .then(res => res.json())
+        .then(response => dispatch({type: POST_RECIPE, payload: response}))
+    }
+}
+
 export function filterRecipesByDietType(diet) {
     console.log('diet recibido en action: ' + diet);
     return {

@@ -51,7 +51,7 @@ export default function Home () {
         dispatch(getRecipes());
         dispatch(getDiets());
         setLoading(false);
-    }, [dispatch]);
+    }, [dispatch, setCurrentPage]);
 
     // function handleInputChange(e) {
     //     //e.preventDefault();
@@ -69,6 +69,7 @@ export default function Home () {
     function handleClick(e) {
         e.preventDefault();
         dispatch(getRecipes());
+        setCurrentPage(1);
     }
 
     function handleSortByName(e) {
@@ -157,7 +158,7 @@ export default function Home () {
                         return (
 
                             <Link to={"/home/" + recipe.id} key={recipe.id}>
-                                <Card  title={recipe.title} image={recipe.image} diets={recipe.diets} />
+                                <Card  title={recipe.title} image={recipe.image} diets={recipe.diets} healthScore={recipe.healthScore}  />
                             </Link>
 
 

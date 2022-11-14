@@ -46,6 +46,10 @@ export default function reducer (state = initialState, action) {
                 ...state,
                 diets: action.payload
             }
+        case POST_RECIPE:
+            return {
+                ...state,
+            }
         case FILTER_RECIPES_BY_DIET_TYPE:
             console.log('action.payload en el reducer es: ' + action.payload);
             if (action.payload === 'All') {
