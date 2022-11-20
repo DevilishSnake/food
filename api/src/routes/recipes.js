@@ -48,7 +48,7 @@ const API_getRecipes = async (name = undefined) => {
 
     } else {
         console.log('Entra a name === undefined');
-        const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?addRecipeInformation=true&apiKey=${KEY}`);
+        const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?addRecipeInformation=true&apiKey=${KEY}&number=100`);
         //console.log(response.data.results[0].analyzedInstructions);
         const newResponse = response.data.results.map(data => {
             let instructionsString = "";
@@ -246,7 +246,7 @@ router.get('/:idReceta', async (req, res) => {
         
         return res.status(200).json(newResponse);
     } catch (error) {
-        return res.send('Error: ' + error);
+        return res.status(404).send('Error: ' + error);
     }
 })
 

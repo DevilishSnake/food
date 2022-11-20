@@ -12,7 +12,7 @@ module.exports = (sequelize) => {
     },
     title: {
       type: DataTypes.STRING,
-      defaultValue: "Default recipe title from DB",
+      //defaultValue: "Default recipe title from DB",
       allowNull: false,
     },
     resume: {

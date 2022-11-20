@@ -19,7 +19,7 @@ export default function Home () {
     //const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const [recipesPerPage, setRecipesPerPage] = useState(1);
+    const [recipesPerPage, setRecipesPerPage] = useState(9);
 
     const indexOfLastRecipe = currentPage * recipesPerPage;
     const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
