@@ -4,6 +4,7 @@ import { Link, useHistory } from 'react-router-dom';
 import { postRecipe } from '../redux/actions';
 import { getDiets } from '../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
+import styles from './recipe.module.css';
 
 export default function Recipe() {
     const dispatch = useDispatch();
@@ -46,16 +47,47 @@ export default function Recipe() {
         }));
     }
 
-    function handleSelect(e) {
-        e.preventDefault();
-        setInput({
-            ...input,
-            diets: [...input.diets, e.target.value]
-        });
-        setErrors(validate({
-            ...input,
-            diets: [...input.diets, e.target.value]
-        }));
+    // function handleSelect(e) {
+    //     e.preventDefault();
+    //     if (e.target.value !== '---') {
+    //         setInput({
+    //             ...input,
+    //             diets: [...input.diets, e.target.value]
+    //         });
+    //         setErrors(validate({
+    //             ...input,
+    //             diets: [...input.diets, e.target.value]
+    //         }));
+    //     }
+    // }
+
+    function handleCheckBoxChange(e) {
+        
+        if(e.target.checked) {
+            if(!input.diets.includes(e.target.value)) {
+                setInput({
+                    ...input,
+                    diets: [...input.diets, e.target.value]
+                });
+                setErrors(validate({
+                    ...input,
+                    diets: [...input.diets, e.target.value]
+                }));
+            }
+        } else if (!e.target.checked) {
+            setInput({
+                ...input,
+                diets: input.diets.filter(diet => {
+                    return diet !== e.target.value
+                })
+            });
+            setErrors(validate({
+                ...input,
+                diets: input.diets.filter(diet => {
+                    return diet !== e.target.value
+                })
+            }));
+        }
     }
 
     function validate(inputToValidate) {
@@ -130,38 +162,52 @@ export default function Recipe() {
         }
     }
     return (
-            <div>
-                <Link to='/home'>Volver atrás...</Link>
+            <div className={styles.container}>
+                <span className={styles.filler}></span>
+                <Link className={styles.button} to='/home'>Volver atrás...</Link>
                 <h1>Creación de nueva receta</h1>
                 <form>
-                    <div>
+                    <div className={styles.form}>
                         <label htmlFor="">Título</label>
-                        <input type="text" value={input.title} name='title' onChange={(e) => handleInputChange(e)}/>
-                        {errors.title && <span>*{errors.title}</span>}
+                        <input className={styles.input} placeholder="Título de la receta..." type="text" value={input.title} name='title' onChange={(e) => handleInputChange(e)}/>
+                        {errors.title && <span className={styles.error}>*{errors.title}</span>}
                         <label htmlFor="">Resumen</label>
-                        <input type="text" value={input.resume} name='resume' onChange={(e) => handleInputChange(e)}/>
-                        {errors.resume && <span>*{errors.resume}</span>}
+                        <input className={styles.input} placeholder="Resumen de la receta..." type="text" value={input.resume} name='resume' onChange={(e) => handleInputChange(e)}/>
+                        {errors.resume && <span className={styles.error}>*{errors.resume}</span>}
                         <label htmlFor="">Health Score</label>
-                        <input type="number" value={input.healthScore} name='healthScore' onChange={(e) => handleInputChange(e)} />
-                        {errors.healthScore && <span>*{errors.healthScore}</span>}
+                        <input className={styles.input} placeholder="0 a 100" type="number" value={input.healthScore} name='healthScore' onChange={(e) => handleInputChange(e)} />
+                        {errors.healthScore && <span className={styles.error}>*{errors.healthScore}</span>}
                         <label htmlFor="">Pasos</label>
-                        <textarea value={input.steps} name='steps' onChange={(e) => handleInputChange(e)} />
-                        {errors.steps && <span>*{errors.steps}</span>}
-                        <select name="" id="" onChange={(e) => {handleSelect(e)}}>
+                        <textarea className={styles.inputArea} placeholder="Pasos a seguir..." value={input.steps} name='steps' onChange={(e) => handleInputChange(e)} />
+                        {errors.steps && <span className={styles.error}>*{errors.steps}</span>}
+                        {/* <select className={styles.input} name="" id="" onChange={(e) => {handleSelect(e)}}>
                             <option value='---'>---</option>
                             {diets?.map((diet, index) => {
                                 return (
                                     <option key={index} value={diet.name}>{diet.name}</option>
                                 )
                             })}
-                        </select>
-                        {errors.diets && <span>*{errors.diets}</span>}
+                        </select> */}
+                        
+                        {diets?.map((diet, index) => {
+                            return (
+                                <div key={index}>
+                                    <input type="checkbox" value={diet.name} id={diet.name} onChange={(e) => {handleCheckBoxChange(e)}} />
+                                    <label  htmlFor={diet.name}>{diet.name}</label>
+                                </div>
+                            )
+                        })}
+                        {errors.diets && <span className={styles.error}>*{errors.diets}</span>}
+
                         <p>Dietas: {input.diets.map((dieta) => {
                             return `${dieta}, `;
                         })}</p>
-                        <button onClick={(e) => {handleSubmit(e)}}>Crear Receta</button>
+                        <span className={styles.filler}></span>
+                        <span className={styles.filler}></span>
+                        <button className={styles.button} onClick={(e) => {handleSubmit(e)}}>Crear Receta</button>
                     </div>
                 </form>
+                <span className={styles.filler}></span>
             </div>
     )
 }

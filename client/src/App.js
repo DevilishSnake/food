@@ -9,7 +9,7 @@ function App() {
   return (
     <BrowserRouter>
       <div className="App">
-      <h1>Henry Food</h1>
+      <h1 className="title">Henry Food</h1>
       <Switch>
         <Route exact path='/home/:id' component={Details} />
         <Route exact path='/' component={LandingPage} />

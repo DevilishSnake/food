@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300&display=swap');
+
+
+.home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 1093px;
+    background-color: rgba(248,247,216,0.8);
+    border: 1px solid black;
+    border-radius: 20px;
+}
+
+.filler {
+    display: block;
+    height: 15px;
+}
+.crearReceta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    width: 120px;
+    height: 45px;
+    border: 1px solid black;
+    border-radius: 25px;
+    background-color: antiquewhite;
+}
+.crearReceta:hover {
+    border: 3px solid black;
+    background-color: wheat;
+    font-weight: bolder;
+}
+.reloadButton {
+    height: 45px;
+    width: 120px;
+    border-radius: 20px;
+    background-color: antiquewhite;
+    color: black;
+    font-family: 'Kanit';
+    font-weight: bolder;
+}
+.reloadButton:hover {
+    border: 3px solid black;
+    background-color: wheat;
+    font-weight: bolder;
+    cursor: pointer;
+}
+.controls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    background-color: rgba(248, 247, 216, 0.8);
+    width: 1093px;
+}
+/*103x20, 103x20, 122x20, 77x20*/
+.selectOrder {
+    background-color: antiquewhite;
+    font-weight: bolder;
+
+}
+
+.selectDiet {
+    background-color: antiquewhite;
+    font-weight: bolder;
+}
+
+.selectCreadoOAPI {
+    background-color: antiquewhite;
+    font-weight: bolder;
+}
+.optionHover:hover {
+    background-color: #f1cd9d;
+}
+.cartas {
+    
+    display: grid;
+    
+    
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
+}
+
+.carta {
+    text-decoration: none;
+}

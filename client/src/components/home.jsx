@@ -7,6 +7,7 @@ import  Card  from './Card';
 import Loading from "./Loading";
 import Pagination from "./Pagination";
 import SearchBar from './SearchBar';
+import styles from './home.module.css';
 
 import axios from 'axios';
 
@@ -18,7 +19,7 @@ export default function Home () {
     //const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const [recipesPerPage, setRecipesPerPage] = useState(2);
+    const [recipesPerPage, setRecipesPerPage] = useState(1);
 
     const indexOfLastRecipe = currentPage * recipesPerPage;
     const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
@@ -99,8 +100,9 @@ export default function Home () {
         dispatch(filterRecipesByAPIOrDB(e.target.value));
     }
     return (
-        <div>
-            <Link to='/recipe'>Crear Receta</Link>
+        <div className={styles.home}>
+            <span className={styles.filler}></span>
+            <Link className={styles.crearReceta} to='/recipe'>Crear Receta</Link>
             <h1>My Recipes Website</h1>
             {/* <form action="submit">
                 <label htmlFor=''>Buscar receta</label>
@@ -108,36 +110,62 @@ export default function Home () {
                 <button onClick={e => handleSubmit(e)}>Buscar</button>
             </form> */}
             <SearchBar />
-            <button onClick={e => {handleClick(e)}}>
+            <button className={styles.reloadButton} onClick={e => { handleClick(e) }}>
                 Reload Recipes
             </button>
-            <label htmlFor="">Ordenar por nombre</label>
-            <select onChange={e => handleSortByName(e)} name="" id="">
-                <option value="asc">Ascendente</option>
-                <option value="des">Descendente</option>
-            </select>
-            <label htmlFor="">Ordenar por health score</label>
-            <select onChange={e => handleSortByHealthScore(e)} name="" id="">
-                <option value="asc">Ascendente</option>
-                <option value="des">Descendente</option>
-            </select>
-            <label htmlFor=''>Filtrar por dieta:</label>
-            <select onChange={e => handleFilterDiet(e)} name="" id="">
-                <option value='All'>Todas</option>
+            <div className={styles.controls}>
+                <div>
+                    <p>Ordenamientos:</p>
+                    <label htmlFor="">Nombre</label>
+                    <select className={styles.selectOrder} onChange={e => handleSortByName(e)} name="" id="">
+                        <option value="asc">Ascendente</option>
+                        <option value="des">Descendente</option>
+                    </select>
+                    <label htmlFor="">Health score</label>
+                    <select className={styles.selectOrder} onChange={e => handleSortByHealthScore(e)} name="" id="">
+                        <option value="asc">Ascendente</option>
+                        <option value="des">Descendente</option>
+                    </select>
+                </div>
+                <div>
+                    <p>Filtros:</p>
+                    <label htmlFor=''>Dieta:</label>
+                    <select className={styles.selectDiet} onChange={e => handleFilterDiet(e)} name="" id="">
+                        <option value='All'>Todas</option>
+                        {
+                            allDiets && allDiets.map(diet => {
+                                return (
+                                    <option key={diet.id} value={diet.name}>{diet.name}</option>
+                                );
+                            })
+                        }
+                    </select>
+                    <label htmlFor=''>Filtrar creados o API:</label>
+                    <select className={styles.selectCreadoOAPI} onChange={e => handleFilterDatabase(e)} name="" id="">
+                        <option className={styles.optionHover} value="All">Todos</option>
+                        <option value="created">Creados</option>
+                        <option value="api">API</option>
+                    </select>
+                </div>
+                <span className={styles.filler}></span>
+            </div>
+
+            <div className={styles.cartas} >
                 {
-                allDiets && allDiets.map(diet => {
-                    return (
-                        <option key={diet.id} value={diet.name}>{diet.name}</option>
-                    );
-                })
+                    loading? <Loading /> :
+                    currentRecipes && currentRecipes.map(recipe => {
+                        return (
+
+                            <Link className={styles.carta} to={"/home/" + recipe.id} key={recipe.id}>
+                                <Card  title={recipe.title} image={recipe.image} diets={recipe.diets} healthScore={recipe.healthScore}  />
+                            </Link>
+
+
+                        );
+                    })
                 }
-            </select>
-            <label htmlFor=''>Filtrar creados o API:</label>
-            <select onChange={e => handleFilterDatabase(e)} name="" id="">
-                <option value="All">Todos</option>
-                <option value="created">Creados</option>
-                <option value="api">API</option>
-            </select>
+            </div>
+
 
             <Pagination
                 recipesPerPage={recipesPerPage}
@@ -150,23 +178,7 @@ export default function Home () {
                 setMinPageNumberLimit={setMinPageNumberLimit}
                 pageNumberLimit={pageNumberLimit}
             />
-
-            <div className='cartas' >
-                {
-                    loading? <Loading /> :
-                    currentRecipes && currentRecipes.map(recipe => {
-                        return (
-
-                            <Link to={"/home/" + recipe.id} key={recipe.id}>
-                                <Card  title={recipe.title} image={recipe.image} diets={recipe.diets} healthScore={recipe.healthScore}  />
-                            </Link>
-
-
-                        );
-                    })
-                }
-            </div>
-
+            <span className={styles.filler}></span>
         </div>
     );
 

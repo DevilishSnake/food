@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300&display=swap');
+
+
+.searchInput {
+    height: 45px;
+    width: 600px;
+    border-radius: 10px;
+    background-color: antiquewhite;
+    color: black;
+    font-family: 'Kanit';
+    font-weight: bolder;
+}
+
+.searchButton {
+    height: 45px;
+    width: 120px;
+    border-radius: 10px;
+    background-color: antiquewhite;
+    color: black;
+    font-family: 'Kanit';
+    font-weight: bolder;
+}
+
+.searchButton:hover {
+    border: 3px solid black;
+    background-color: wheat;
+    font-weight: bolder;
+    cursor: pointer;
+}
